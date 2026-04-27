@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" data-theme="win98">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>win98 — your Solid pod, but it's 1998</title>
+<meta name="description" content="A Solid desktop OS dressed as Windows 98. Same primitives as solid-apps/chrome — windows, panes, real-time, pod sync — wrapped in peak teal aesthetic." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23c0c0c0'/%3E%3Crect x='3' y='3' width='8' height='8' fill='%23ff0000'/%3E%3Crect x='13' y='3' width='8' height='8' fill='%2300ff00'/%3E%3Crect x='3' y='13' width='8' height='8' fill='%230000ff'/%3E%3Crect x='13' y='13' width='8' height='8' fill='%23ffff00'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "preact":       "https://esm.sh/preact@10.19.0",
+    "preact/hooks": "https://esm.sh/preact@10.19.0/hooks",
+    "htm":          "https://esm.sh/htm@3.1.1"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="wallpaper" aria-hidden="true"></div>
+
+  <div class="windows" id="windows"></div>
+
+  <div class="taskbar" id="shelf">
+    <button class="start-btn" id="tray-launcher" title="Start (⌘Space)">
+      <span class="start-flag" aria-hidden="true">
+        <span></span><span></span>
+        <span></span><span></span>
+      </span>
+      <b>Start</b>
+    </button>
+    <div class="taskbar-divider"></div>
+    <div class="shelf-running" id="shelf-running"></div>
+    <div class="taskbar-divider"></div>
+    <div class="systray">
+      <button class="tray-pill" id="tray-quick" title="Settings">⚙</button>
+      <button class="tray-pill tray-auth" id="tray-auth" title="Sign in">Sign in</button>
+      <span class="tray-desks" id="tray-desks"></span>
+      <span class="tray-clock" id="tray-clock">—</span>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/xlogin"></script>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
