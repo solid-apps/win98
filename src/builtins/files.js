@@ -35,7 +35,7 @@ export async function render(content, ctx) {
     return;
   }
 
-  currentDir = storage;
+  currentDir = await pickStartContainer(storage, ctx.fetch);
 
   content.innerHTML = `
     <div class="files-app">
@@ -187,6 +187,29 @@ function rowHTML(it) {
 }
 
 // ---- Helpers ----
+
+// Some pods (e.g. jspod) serve a static index.html at the storage root,
+// shadowing the LDP container listing even when the client asks for
+// JSON-LD. If the root doesn't respond with an RDF-shaped body, fall
+// back to `${storage}public/` which is a real container on every pod
+// that follows the common public/private layout.
+async function pickStartContainer(storage, fetcher) {
+  if (await looksLikeRdfContainer(storage, fetcher)) return storage;
+  const pub = storage + "public/";
+  if (await looksLikeRdfContainer(pub, fetcher)) return pub;
+  return storage;
+}
+
+async function looksLikeRdfContainer(url, fetcher) {
+  try {
+    const r = await fetcher(url, { headers: { Accept: "application/ld+json" } });
+    if (!r.ok) return false;
+    const ct = (r.headers.get("content-type") || "").toLowerCase();
+    if (ct.includes("json") || ct.includes("turtle")) return true;
+    const body = (await r.text()).trim();
+    return body.startsWith("{") || body.startsWith("[");
+  } catch { return false; }
+}
 
 async function discoverStorage(webid, fetcher) {
   if (!webid) return null;
