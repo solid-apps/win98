@@ -95,6 +95,7 @@ body {
   cursor: grab;
   user-select: none;
   flex-shrink: 0;
+  touch-action: none; /* let pointer-drag own the touch gesture (no scroll hijack) */
   font: bold 11px var(--sans);
   margin: 2px;
 }
@@ -142,7 +143,7 @@ body {
 }
 .win-error { padding: 12px 14px; background: #ffeaea; border-bottom: 1px solid var(--w-danger); color: var(--w-danger); font: 11px var(--sans); }
 
-.win-resize { position: absolute; }
+.win-resize { position: absolute; touch-action: none; }
 .win-n { top: -3px; left: 8px; right: 8px; height: 6px; cursor: ns-resize; }
 .win-s { bottom: -3px; left: 8px; right: 8px; height: 6px; cursor: ns-resize; }
 .win-e { top: 8px; bottom: 8px; right: -3px; width: 6px; cursor: ew-resize; }
