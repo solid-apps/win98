@@ -403,6 +403,7 @@ body {
 .qs-row { display: flex; align-items: center; gap: 8px; }
 .qs-row.qs-stack { flex-direction: column; align-items: stretch; gap: 4px; }
 .qs-label { flex: 0 0 70px; font: 11px var(--sans); color: var(--w-text); }
+.qs-row.qs-stack .qs-label { flex: 0 0 auto; }   /* in a vertical stack, hug the text (don't become 70px tall) */
 .qs-seg { display: inline-flex; }
 .qs-seg button {
   background: var(--w-gray); border: none; color: var(--w-text);
