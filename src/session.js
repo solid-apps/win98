@@ -15,6 +15,7 @@ import { launchApp } from "./launcher.js";
 import { openPaneFor } from "./panes.js";
 import { authFetch, getAuth, onAuth } from "./auth.js";
 import { subscribe } from "./notifications.js";
+import { schedulePush, pullFromPod } from "./sync.js";
 
 const KEY = "chrome-session";
 let restored = false;
@@ -25,6 +26,8 @@ function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try { localStorage.setItem(KEY, JSON.stringify(serializeWindows())); } catch { /* ignore quota */ }
+    const a = getAuth();
+    if (a?.loggedIn && a.type === "solid") schedulePush(a.id);   // mirror session to the pod
   }, 400);
 }
 
@@ -59,7 +62,16 @@ export async function restoreSession() {
 // Persist on every open/close/move/resize/min/max/focus.
 onWindowsChange(save);
 
-// Restore once, after auth has had a chance to settle (pane re-fetches may
-// need the session). Fall back to a timer if no auth event ever arrives.
-onAuth(() => { if (!kicked) { kicked = true; restoreSession(); } });
+// Restore once, after auth has had a chance to settle. When signed in to a pod,
+// pull the canonical session first (so restore reflects other devices), then
+// restore. Fall back to a timer (localStorage-only) if no auth event arrives.
+onAuth(async (a) => {
+  if (kicked) return;
+  kicked = true;
+  if (a?.loggedIn && a.type === "solid") {
+    try { await pullFromPod(a.id); } catch { /* fall back to local session */ }
+    schedulePush(a.id);
+  }
+  restoreSession();
+});
 setTimeout(() => { if (!kicked) { kicked = true; restoreSession(); } }, 1500);

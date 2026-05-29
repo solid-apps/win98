@@ -16,6 +16,10 @@ import { list as listInstalled, onChange as onInstalledChange } from "./installe
 import { listApps } from "./registry.js";
 import { listBuiltins } from "./builtins/index.js";
 import { launchApp } from "./launcher.js";
+import { getAuth, onAuth } from "./auth.js";
+import { schedulePush, pullFromPod } from "./sync.js";
+
+function pushIfSolid() { const a = getAuth(); if (a?.loggedIn && a.type === "solid") schedulePush(a.id); }
 
 const POS_KEY = "chrome-desktop-icons";
 const CELL = 96;   // icon cell for auto-layout
@@ -30,6 +34,7 @@ function loadPositions() {
 }
 function savePositions() {
   try { localStorage.setItem(POS_KEY, JSON.stringify(Object.fromEntries(positions))); } catch {}
+  pushIfSolid();   // mirror the new layout to the pod (debounced)
 }
 
 function items() {
@@ -109,3 +114,15 @@ function escape(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp
 render();
 listApps().then(list => { metaByUrl = new Map(list.map(a => [a.url, a])); render(); }).catch(() => {});
 onInstalledChange(render);
+
+// On sign-in (Solid), pull the pod's layout; if icon positions changed, reload
+// + re-render. Then push (seeds the pod doc if absent). One-shot per session.
+let layoutPulled = false;
+onAuth((a) => {
+  if (layoutPulled || !(a?.loggedIn && a.type === "solid")) return;
+  layoutPulled = true;
+  pullFromPod(a.id).then((r) => {
+    if (r.iconsChanged) { positions = loadPositions(); render(); }
+    schedulePush(a.id);
+  }).catch(() => {});
+});
