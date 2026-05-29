@@ -156,7 +156,7 @@ function onGlobalKey(e) {
   if (e.key === "Escape") closeLauncher();
 }
 
-async function launchApp(url) {
+export async function launchApp(url) {
   closeLauncher();
   let app;
   try {

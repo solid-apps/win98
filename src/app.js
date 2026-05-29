@@ -21,6 +21,7 @@ import { listBuiltins } from "./builtins/index.js";
 import * as wallpaper from "./wallpaper.js";
 import { toggleQuickSettings } from "./quick-settings.js";
 import "./lock.js"; // import for side-effect: idle auto-lock listener
+import "./desktop.js"; // import for side-effect: renders app icons on the desktop surface
 
 // ---- Theme (system pref → localStorage). ----
 function resolveTheme() {

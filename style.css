@@ -69,6 +69,19 @@ body {
 }
 .windows > .window { pointer-events: auto; }
 
+/* ===== Desktop icons (above the bottom taskbar) ===== */
+.desktop-icons { position: fixed; inset: 0 0 28px 0; z-index: 1; pointer-events: none; }
+.desk-icon {
+  position: absolute; width: 76px; pointer-events: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 2px; background: transparent; border: 1px dotted transparent;
+  cursor: pointer; font: 11px var(--sans); color: var(--w-light);
+}
+.desk-icon:hover  { border-color: rgba(255,255,255,0.5); }
+.desk-icon:active, .desk-icon:focus { background: rgba(0,0,128,0.4); border: 1px dotted #fff; outline: none; }
+.desk-icon-glyph { font-size: 30px; line-height: 1; }
+.desk-icon-label { font: 11px var(--sans); text-align: center; color: var(--w-light); text-shadow: 1px 1px 0 #000; max-width: 72px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 .window {
   background: var(--w-gray);
   border-radius: 0;
