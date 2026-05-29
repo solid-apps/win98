@@ -92,7 +92,7 @@ export async function findPaneFor(types) {
 /** Open a pane in a new chrome window. `ctx` is the host context that
  *  the dispatching app already has (auth, fetch, subscribe). The pane
  *  receives a SLIP-48 4-arg call (+ ctx as 5th, hub-style extension). */
-export async function openPaneFor({ url, doc, types, name, icon }, ctx) {
+export async function openPaneFor({ url, doc, types, name, icon }, ctx, geom = {}) {
   const entry = await findPaneFor(types);
   if (!entry) return null;
 
@@ -119,8 +119,10 @@ export async function openPaneFor({ url, doc, types, name, icon }, ctx) {
   openWindow({
     title: name || entry.name || url.split("/").pop(),
     icon:  icon || entry.icon || "🧩",
-    width:  720, height: 520,
-    app: { url: entry.url, meta: pane.meta },
+    width:  geom.w || 720, height: geom.h || 520,
+    x: geom.x, y: geom.y, maximized: geom.maximized, minimized: geom.minimized, desk: geom.desk,
+    // record the resource + types so session restore can re-fetch & re-dispatch this pane
+    app: { url: entry.url, meta: pane.meta, kind: "pane", resource: url, types },
     render(content, win) {
       const subject = { value: url, termType: "NamedNode" };
       const store = makeStore(types, url);

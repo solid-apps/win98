@@ -126,6 +126,20 @@ export function listAllWindows() {
   }));
 }
 
+// Full per-window state incl. geometry — for session save/restore.
+// Only windows that carry an app (app.url) are serialisable; ad-hoc
+// windows (e.g. error dialogs) are skipped.
+export function serializeWindows() {
+  return all
+    .filter(w => w.app && w.app.url)
+    .map(w => ({
+      url: w.app.url, kind: w.app.kind || "app",
+      resource: w.app.resource || null, types: w.app.types || null,
+      x: Math.round(w.x), y: Math.round(w.y), w: Math.round(w.w), h: Math.round(w.h),
+      maximized: !!w.maximized, minimized: !!w.minimized, desk: w.desk,
+    }));
+}
+
 export function onWindowsChange(cb) {
   subs.add(cb);
   return () => subs.delete(cb);
@@ -181,6 +195,8 @@ export function openWindow(opts = {}) {
   document.getElementById("windows").appendChild(el);
   wireWindow(win);
   focus(id);
+  if (opts.maximized) maximize(id);
+  else if (opts.minimized) minimize(id);
 
   // Run the app's render. If it throws, surface inline rather than dying.
   try {

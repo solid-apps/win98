@@ -22,6 +22,7 @@ import * as wallpaper from "./wallpaper.js";
 import { toggleQuickSettings } from "./quick-settings.js";
 import "./lock.js"; // import for side-effect: idle auto-lock listener
 import "./desktop.js"; // import for side-effect: renders app icons on the desktop surface
+import "./session.js"; // import for side-effect: saves + restores open windows across reloads
 
 // ---- Theme (system pref → localStorage). ----
 function resolveTheme() {

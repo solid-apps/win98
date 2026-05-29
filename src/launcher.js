@@ -156,7 +156,7 @@ function onGlobalKey(e) {
   if (e.key === "Escape") closeLauncher();
 }
 
-export async function launchApp(url) {
+export async function launchApp(url, geom = {}) {
   closeLauncher();
   let app;
   try {
@@ -177,8 +177,9 @@ export async function launchApp(url) {
   openWindow({
     title: app.meta?.name || url.split("/").pop(),
     icon:  app.meta?.icon || "📦",
-    width:  app.meta?.width  || 720,
-    height: app.meta?.height || 480,
+    width:  geom.w || app.meta?.width  || 720,
+    height: geom.h || app.meta?.height || 480,
+    x: geom.x, y: geom.y, maximized: geom.maximized, minimized: geom.minimized, desk: geom.desk,
     app: { url, meta: app.meta },
     render(content, win) {
       const ctx = makeCtx(win);
