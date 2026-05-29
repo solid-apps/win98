@@ -17,6 +17,16 @@ import { openWindow } from "./windows.js";
 
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
+// User's chosen default pane per class — shared with hub. On solid-apps.github.io
+// every shell is same-origin, so hub's localStorage map is visible here directly;
+// a default set in hub applies on the desktop too. (Cross-device sync of the pod's
+// urn:solid:PaneDefaults registration is the natural follow-up.)
+function classDefaults() {
+  try { return JSON.parse(localStorage.getItem("hubpod-pane-defaults") || "{}"); }
+  catch { return {}; }
+}
+const localName = (s) => String(s || "").split(/[#/:]/).pop();
+
 let indexPromise = null;
 function ensureIndex() {
   if (!indexPromise) {
@@ -47,19 +57,32 @@ export async function getPanesIndex() { return ensureIndex(); }
 export async function findPaneFor(types) {
   if (!Array.isArray(types) || !types.length) return null;
   const index = await ensureIndex();
+  const byUrl = new Map([...index.values()].map(e => [e.url, e]));
 
+  // 0. Honour the user's pinned default pane for any of these classes
+  //    (shared with hub). Match the class exactly or by local name.
+  const defaults = classDefaults();
+  for (const t of types) {
+    if (typeof t !== "string") continue;
+    for (const cls of Object.keys(defaults)) {
+      if (cls === t || localName(cls) === localName(t)) {
+        const e = byUrl.get(defaults[cls]);
+        if (e) return e;
+      }
+    }
+  }
+
+  // 1. Exact full-IRI match.
   for (const t of types) {
     if (typeof t === "string" && index.has(t)) return index.get(t);
   }
+  // 2. Local-name match (handles compacted "schema:TextDocument" or the
+  //    https/http variant vs a registry forClass written either way).
   for (const t of types) {
     if (typeof t !== "string") continue;
-    // Loose-match only on bare local names (no `/` or `:`), so a
-    // fully-qualified IRI that didn't match in pass 1 doesn't get
-    // mis-resolved here.
-    if (t.includes("/") || t.includes(":")) continue;
+    const tln = localName(t);
     for (const [cls, entry] of index) {
-      const clsLocal = cls.split(/[#/]/).pop();
-      if (clsLocal === t) return entry;
+      if (localName(cls) === tln) return entry;
     }
   }
   return null;
