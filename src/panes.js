@@ -34,7 +34,8 @@ function ensureIndex() {
       const m = new Map();
       for (const e of entries) {
         if (e.type !== "pane" || !e.forClass) continue;
-        m.set(e.forClass, e);
+        // urn:forClass may be a single IRI or an array (one pane, many types).
+        for (const c of (Array.isArray(e.forClass) ? e.forClass : [e.forClass])) m.set(c, e);
       }
       return m;
     }).catch(e => { indexPromise = null; throw e; });
